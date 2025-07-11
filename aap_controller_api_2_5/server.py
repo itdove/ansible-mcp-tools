@@ -1,9 +1,8 @@
 from os import environ
 
-from mcp.server.fastmcp.utilities.logging import get_logger
+from mcp.server.fastmcp.utilities.logging import get_logger, configure_logging
 
-from ansible_mcp_tools.registry import register_service_url
-from ansible_mcp_tools.registry import init as init_registry
+from ansible_mcp_tools.registry import AAPRegistry
 from ansible_mcp_tools.server import LightspeedOpenAPIAAPServer
 from ansible_mcp_tools.openapi.spec_loaders import FileLoader
 from ansible_mcp_tools.openapi.tool_rules import MethodRule, NoDescriptionRule
@@ -14,14 +13,11 @@ from ansible_mcp_tools.authentication.validators.aap_token_validator import (
 from ansible_mcp_tools.authentication.validators.aap_jwt_validator import (
     AAPJWTValidator,
 )
-from mcp.server.fastmcp.utilities.logging import configure_logging
 
 
 logger = get_logger(__name__)
 
 configure_logging("DEBUG")
-
-init_registry()
 
 AAP_GATEWAY_URL = environ.get("AAP_GATEWAY_URL")
 AAP_SERVICE_URL = environ.get("AAP_SERVICE_URL")
@@ -35,19 +31,19 @@ logger.info(f"OPENAPI_SPEC_URL: {URL}")
 logger.info(f"HOST: {HOST}")
 logger.info(f"PORT: {PORT}")
 
-register_service_url("gateway", AAP_GATEWAY_URL)
-register_service_url("controller", AAP_SERVICE_URL)
+registry = AAPRegistry()
 
 mcp = LightspeedOpenAPIAAPServer(
     name="AAP Controller API 2.5 MCP Server",
     service_name="controller",
+    registry=registry,
     auth_backend=LightspeedAuthenticationBackend(
         authentication_validators=[
             AAPJWTValidator(AAP_GATEWAY_URL, verify_cert=False),
             AAPTokenValidator(AAP_GATEWAY_URL, verify_cert=False),
         ]
     ),
-    spec_loader=FileLoader(URL),
+    spec_loader=registry.get_targeted_service("controller").get_open_api_document_loader(),
     tool_rules=[
         MethodRule(["PUT", "OPTIONS", "DELETE", "PATCH", "POST"]),
         NoDescriptionRule(),

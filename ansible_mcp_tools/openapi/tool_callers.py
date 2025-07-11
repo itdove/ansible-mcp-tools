@@ -6,7 +6,7 @@ from abc import ABC
 from os import environ
 from typing import Dict, List, override
 
-from ansible_mcp_tools.registry import get_aap_service, AAPService
+from ansible_mcp_tools.registry import BaseRegistry, AAPService, AAPRegistry
 from ansible_mcp_tools.openapi.protocols.tool_caller import ToolCaller
 from ansible_mcp_tools.openapi.protocols.tool_name_strategy import ToolNameStrategy
 from ansible_mcp_tools.authentication.context import (
@@ -26,13 +26,14 @@ class BaseToolCaller(ToolCaller, ABC):
         spec: Dict,
         tools: List[types.Tool],
         service_name: str,
+        registry: BaseRegistry,
         tool_name_strategy: ToolNameStrategy,
     ):
         self._spec = spec
         self._tools = tools
         self._service_name = service_name
+        self._registry = registry
         self._tool_name_strategy = tool_name_strategy
-
 
 class DefaultToolCaller(BaseToolCaller):
     def __init__(
@@ -40,9 +41,10 @@ class DefaultToolCaller(BaseToolCaller):
         spec: Dict,
         tools: List[types.Tool],
         service_name: str,
+        registry: AAPRegistry,
         tool_name_strategy: ToolNameStrategy,
     ):
-        super().__init__(spec, tools, service_name, tool_name_strategy)
+        super().__init__(spec, tools, service_name, registry, tool_name_strategy)
 
     @override
     async def tool_call(self, name: str, arguments: dict) -> list[types.TextContent]:
@@ -139,17 +141,18 @@ class DefaultToolCaller(BaseToolCaller):
                 )
 
             # Look-up and construct applicable URL
-            path = path.lstrip("/")
-            service: AAPService = get_aap_service(self._service_name)
-            path = path.lstrip(service.gateway_base_path)
-
+ 
+            service: AAPService = self._registry.get_targeted_service(self._service_name)
+            path = service.build_path(path)
             auth_user = auth_context_var.get()
+
             headers = get_authentication_headers()
             verify_cert = (
                 auth_user.authentication_info.verify_cert if auth_user else True
             )
-            api_url = utils.get_aap_service_url_path(
-                self._service_name, auth_user.authentication_info.header_name, path
+
+            api_url = self._registry.build_api_url(
+                self._service_name, path, header_name=auth_user.authentication_info.header_name
             )
 
             if method != "GET":

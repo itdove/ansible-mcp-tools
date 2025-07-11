@@ -21,6 +21,7 @@ from mcp.types import (
 )
 from starlette.applications import Starlette
 from typing import Any, override
+from .registry import AAPRegistry
 
 logger = get_logger(__name__)
 
@@ -60,6 +61,7 @@ class LightspeedOpenAPIAAPServer(LightspeedBaseAAPServer):
         self,
         name: str,
         service_name: str,
+        registry: AAPRegistry,
         auth_backend: AuthenticationBackend | None,
         spec_loader: SpecLoader,
         tool_name_strategy: ToolNameStrategy | None = None,
@@ -76,7 +78,7 @@ class LightspeedOpenAPIAAPServer(LightspeedBaseAAPServer):
         )
         self._tools = _tool_parser.parse_tools()
         self._tool_caller = DefaultToolCaller(
-            _spec, self._tools, service_name, _tool_name_strategy
+            _spec, self._tools, service_name, registry, _tool_name_strategy
         )
 
     @override
