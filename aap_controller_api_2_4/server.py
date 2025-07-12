@@ -6,9 +6,7 @@ from mcp.server.fastmcp.utilities.logging import get_logger, configure_logging
 from ansible_mcp_tools.registry import AAPRegistry
 from ansible_mcp_tools.server import LightspeedOpenAPIAAPServer
 from ansible_mcp_tools.openapi.spec_loaders import FileLoader
-
 from ansible_mcp_tools.openapi.tool_rules import MethodRule, NoDescriptionRule
-
 from ansible_mcp_tools.authentication import LightspeedAuthenticationBackend
 from ansible_mcp_tools.authentication.validators.aap_token_validator import (
     AAPTokenValidator,
@@ -19,13 +17,13 @@ logger = get_logger(__name__)
 
 configure_logging("DEBUG")
 
-SERVICE_NAME="gateway"
-AAP_GATEWAY_URL = environ.get("AAP_GATEWAY_URL")
+SERVICE_NAME = "controller24"
+AAP_SERVICE_URL = environ.get("AAP_SERVICE_URL")
 URL = environ.get("OPENAPI_SPEC_URL")
 HOST = environ.get("HOST", "127.0.0.1")
-PORT = environ.get("PORT", 8003)
+PORT = environ.get("PORT", 8004)
 
-logger.info(f"AAP_GATEWAY_URL: {AAP_GATEWAY_URL}")
+logger.info(f"AAP_SERVICE_URL: {AAP_SERVICE_URL}")
 logger.info(f"OPENAPI_SPEC_URL: {URL}")
 logger.info(f"HOST: {HOST}")
 logger.info(f"PORT: {PORT}")
@@ -36,7 +34,7 @@ service = registry.get_targeted_service(SERVICE_NAME)
 validation_url = urljoin(service.targeted_services_url[SERVICE_NAME],service.validation_uri)
 
 mcp = LightspeedOpenAPIAAPServer(
-    name="AAP Gateway API 2.5 MCP Server",
+    name="AAP Controller API 2.4 MCP Server",
     service_name=SERVICE_NAME,
     registry=registry,
     auth_backend=LightspeedAuthenticationBackend(

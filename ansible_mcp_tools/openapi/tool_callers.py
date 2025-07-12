@@ -142,8 +142,6 @@ class DefaultToolCaller(BaseToolCaller):
 
             # Look-up and construct applicable URL
  
-            service: AAPService = self._registry.get_targeted_service(self._service_name)
-            path = service.build_path(path)
             auth_user = auth_context_var.get()
 
             headers = get_authentication_headers()
@@ -151,9 +149,8 @@ class DefaultToolCaller(BaseToolCaller):
                 auth_user.authentication_info.verify_cert if auth_user else True
             )
 
-            api_url = self._registry.build_api_url(
-                self._service_name, path, header_name=auth_user.authentication_info.header_name
-            )
+            service: AAPService = self._registry.get_targeted_service(self._service_name)
+            api_url =  service.api_url_builder(self._registry, path, header_name=auth_user.authentication_info.header_name)
 
             if method != "GET":
                 headers["Content-Type"] = "application/json"

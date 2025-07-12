@@ -1,27 +1,33 @@
+import types
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from ansible_mcp_tools.openapi.spec_loaders import BaseLoader, FileLoader, UrlLoader
+from urllib.parse import urljoin
 
 @dataclass
 class BaseService:
     name: str
-    string_to_replace_in_path: dict
     targeted_services_url: dict[str:str]
     open_api_document_url: str
-
-    def __init__(self, name, string_to_replace_in_path,targeted_services_url,open_api_document_url):
+    validation_uri: str
+ 
+    def __init__(self, name,targeted_services_url,open_api_document_url,validation_uri):
         self.name = name
-        self.string_to_replace_in_path= string_to_replace_in_path
         self.targeted_services_url = targeted_services_url
         self.open_api_document_url = open_api_document_url
+        self.validation_uri = validation_uri
 
     def get_open_api_document_loader(self) -> BaseLoader:
+        print(f"open_api_document_url: {self.open_api_document_url}")
         if self.open_api_document_url.lower().startswith("file://"):
             return FileLoader(self.open_api_document_url)
         return UrlLoader(self.open_api_document_url)
 
     def build_path(self, path: str) -> str:
-        pass
+        return path
+
+    def api_url_builder(self,path: str, **kwargs) -> str | None:
+        return urljoin(self.targeted_services_url,self.build_path(path))
 
 @dataclass
 class BaseRegistry:
@@ -36,11 +42,3 @@ class BaseRegistry:
 
     def get_targeted_service(self,name: str) -> BaseService | None:
         return self.targeted_services_registry.get(name, None)
-
-    def get_targeted_service_url(self,name: str) -> str | None:
-        return self.targeted_services_registry[name].targeted_service_url
-
-    def build_api_url(self,
-        service_name: str,  path: str, **kwargs
-    ) -> str | None:
-        pass

@@ -42,7 +42,7 @@ class AAPBaseValidator(AuthenticationValidator):
         )
         if authentication_header_value is None:
             return None
-        url = urljoin(self._authentication_server_url, "api/gateway/v1/me/")
+        url = self._authentication_server_url
         logger.debug("calling authentication server at url: %s", url)
         async with httpx.AsyncClient(verify=self._verify_cert) as client:
             response = await client.get(

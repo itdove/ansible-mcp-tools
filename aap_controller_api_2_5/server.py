@@ -1,4 +1,5 @@
 from os import environ
+from urllib.parse import urljoin
 
 from mcp.server.fastmcp.utilities.logging import get_logger, configure_logging
 
@@ -19,6 +20,7 @@ logger = get_logger(__name__)
 
 configure_logging("DEBUG")
 
+SERVICE_NAME="controller"
 AAP_GATEWAY_URL = environ.get("AAP_GATEWAY_URL")
 AAP_SERVICE_URL = environ.get("AAP_SERVICE_URL")
 URL = environ.get("OPENAPI_SPEC_URL")
@@ -33,17 +35,20 @@ logger.info(f"PORT: {PORT}")
 
 registry = AAPRegistry()
 
+service = registry.get_targeted_service(SERVICE_NAME)
+validation_url = urljoin(service.targeted_services_url[SERVICE_NAME],service.validation_uri)
+
 mcp = LightspeedOpenAPIAAPServer(
     name="AAP Controller API 2.5 MCP Server",
-    service_name="controller",
+    service_name=SERVICE_NAME,
     registry=registry,
     auth_backend=LightspeedAuthenticationBackend(
         authentication_validators=[
-            AAPJWTValidator(AAP_GATEWAY_URL, verify_cert=False),
-            AAPTokenValidator(AAP_GATEWAY_URL, verify_cert=False),
+            AAPJWTValidator(validation_url, verify_cert=False),
+            AAPTokenValidator(validation_url, verify_cert=False),
         ]
     ),
-    spec_loader=registry.get_targeted_service("controller").get_open_api_document_loader(),
+    spec_loader=registry.get_targeted_service(SERVICE_NAME).get_open_api_document_loader(),
     tool_rules=[
         MethodRule(["PUT", "OPTIONS", "DELETE", "PATCH", "POST"]),
         NoDescriptionRule(),
