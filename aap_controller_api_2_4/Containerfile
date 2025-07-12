@@ -5,7 +5,7 @@ ARG HOST
 ARG PORT
 
 ENV AAP_SERVICE_URL=${AAP_SERVICE_URL}
-ENV OPENAPI_SPEC_URL="file:///var/www/aap-controller-api.json"
+ENV OPENAPI_SPEC_URL="https://docs.ansible.com/ansible-tower/latest/html/towerapi/_static/swagger.json"
 ENV HOST=${HOST}
 ENV PORT=${PORT}
 ENV PYTHONUNBUFFERED=1
