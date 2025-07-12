@@ -5,7 +5,6 @@ from mcp.server.fastmcp.utilities.logging import get_logger, configure_logging
 
 from ansible_mcp_tools.registry import AAPRegistry
 from ansible_mcp_tools.server import LightspeedOpenAPIAAPServer
-from ansible_mcp_tools.openapi.spec_loaders import FileLoader
 from ansible_mcp_tools.openapi.tool_rules import MethodRule, NoDescriptionRule
 from ansible_mcp_tools.authentication import LightspeedAuthenticationBackend
 from ansible_mcp_tools.authentication.validators.aap_token_validator import (
@@ -36,7 +35,7 @@ validation_url = urljoin(service.targeted_services_url[SERVICE_NAME],service.val
 mcp = LightspeedOpenAPIAAPServer(
     name="AAP Controller API 2.4 MCP Server",
     service_name=SERVICE_NAME,
-    registry=registry,
+    service=service,
     auth_backend=LightspeedAuthenticationBackend(
         authentication_validators=[
             AAPTokenValidator(validation_url, verify_cert=False),

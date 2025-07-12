@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 
 from mcp.server.fastmcp.utilities.logging import get_logger, configure_logging
 
-from ansible_mcp_tools.registry import AAPRegistry
+from ansible_mcp_tools.service import AAPRegistry
 
 from ansible_mcp_tools.openapi.tool_rules import (
     MethodRule,
@@ -46,7 +46,7 @@ validation_url = urljoin(service.targeted_services_url[SERVICE_NAME],service.val
 mcp = LightspeedOpenAPIAAPServer(
     name="AAP Lightspeed API 1.0 MCP Server",
     service_name=SERVICE_NAME,
-    registry=registry,
+    service=service,
     auth_backend=LightspeedAuthenticationBackend(
         authentication_validators=[
             AAPJWTValidator(validation_url, verify_cert=False),

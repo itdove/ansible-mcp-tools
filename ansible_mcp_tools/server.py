@@ -21,7 +21,7 @@ from mcp.types import (
 )
 from starlette.applications import Starlette
 from typing import Any, override
-from .registry import AAPRegistry
+from ansible_mcp_tools.service import AAPService
 
 logger = get_logger(__name__)
 
@@ -60,8 +60,7 @@ class LightspeedOpenAPIAAPServer(LightspeedBaseAAPServer):
     def __init__(
         self,
         name: str,
-        service_name: str,
-        registry: AAPRegistry,
+        service: AAPService,
         auth_backend: AuthenticationBackend | None,
         spec_loader: SpecLoader,
         tool_name_strategy: ToolNameStrategy | None = None,
@@ -69,16 +68,17 @@ class LightspeedOpenAPIAAPServer(LightspeedBaseAAPServer):
         **settings: Any,
     ):
         super().__init__(name, auth_backend, **settings)
+        self._service = service
         _spec = spec_loader.load()
         _tool_name_strategy = (
             tool_name_strategy if tool_name_strategy else DefaultToolNameStrategy()
         )
         _tool_parser = DefaultToolParser(
-            _spec, service_name, _tool_name_strategy, tool_rules=tool_rules
+            _spec, service.name, _tool_name_strategy, tool_rules=tool_rules
         )
         self._tools = _tool_parser.parse_tools()
         self._tool_caller = DefaultToolCaller(
-            _spec, self._tools, service_name, registry, _tool_name_strategy
+            _spec, self._tools, self._service, _tool_name_strategy
         )
 
     @override

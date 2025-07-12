@@ -16,7 +16,6 @@ WORKDIR /var/www/
 
 COPY ansible_mcp_tools/ ./ansible_mcp_tools/
 COPY aap_controller_api_2_4/server.py ./
-COPY aap_controller_api_2_4/aap-controller-api.json ./
 COPY aap_controller_api_2_4/pyproject.toml ./pyproject.toml
 
 RUN python -m pip install --no-cache-dir --no-binary=all .

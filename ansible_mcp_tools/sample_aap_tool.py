@@ -11,6 +11,7 @@ from ansible_mcp_tools.authentication.context import (
 
 logger = get_logger(__name__)
 
+registry = AAPRegistry()
 
 async def fetch_current_user_data(context="lightspeed") -> str:
     """return the current logged-in AAP user information"""

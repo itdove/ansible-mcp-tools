@@ -1,7 +1,7 @@
 from os import environ
 
-from ansible_mcp_tools.registry import register_service_url
-from ansible_mcp_tools.registry import init as init_registry
+from ansible_mcp_tools.service import register_service_url
+from ansible_mcp_tools.service import init as init_registry
 from ansible_mcp_tools.server import LightspeedBaseAAPServer
 
 from ansible_mcp_tools.authentication import LightspeedAuthenticationBackend
