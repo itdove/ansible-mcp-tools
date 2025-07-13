@@ -1,8 +1,13 @@
 import types
+from mcp.server.fastmcp.utilities.logging import get_logger, configure_logging
 
 from dataclasses import dataclass
 from ansible_mcp_tools.openapi.spec_loaders import BaseLoader, FileLoader, UrlLoader
 from urllib.parse import urljoin
+
+logger = get_logger(__name__)
+
+configure_logging("DEBUG")
 
 @dataclass
 class BaseService:
@@ -18,7 +23,7 @@ class BaseService:
         self.validation_uri = validation_uri
 
     def get_open_api_document_loader(self) -> BaseLoader:
-        print(f"open_api_document_url: {self.open_api_document_url}")
+        logger.debug(f"open_api_document_url: {self.open_api_document_url}")
         if self.open_api_document_url.lower().startswith("file://"):
             return FileLoader(self.open_api_document_url)
         return UrlLoader(self.open_api_document_url)

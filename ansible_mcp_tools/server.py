@@ -26,7 +26,7 @@ from ansible_mcp_tools.service import AAPService
 logger = get_logger(__name__)
 
 
-class LightspeedBaseAAPServer(FastMCP):
+class MCPBaseServer(FastMCP):
     def __init__(
         self,
         name: str = "Lightspeed AAP MCP",
@@ -56,7 +56,7 @@ class LightspeedBaseAAPServer(FastMCP):
         return app
 
 
-class LightspeedOpenAPIAAPServer(LightspeedBaseAAPServer):
+class MCPOpenAPIServer(MCPBaseServer):
     def __init__(
         self,
         name: str,

@@ -10,7 +10,7 @@ from ansible_mcp_tools.openapi.tool_rules import (
     OperationIdBlackRule,
     NoDescriptionRule,
 )
-from ansible_mcp_tools.server import LightspeedOpenAPIAAPServer
+from ansible_mcp_tools.server import MCPOpenAPIServer
 from ansible_mcp_tools.openapi.spec_loaders import FileLoader
 
 from ansible_mcp_tools.authentication import LightspeedAuthenticationBackend
@@ -43,7 +43,7 @@ registry = AAPRegistry()
 service = registry.get_targeted_service(SERVICE_NAME)
 validation_url = urljoin(service.targeted_services_url[SERVICE_NAME],service.validation_uri)
 
-mcp = LightspeedOpenAPIAAPServer(
+mcp = MCPOpenAPIServer(
     name="AAP Lightspeed API 1.0 MCP Server",
     service_name=SERVICE_NAME,
     service=service,
