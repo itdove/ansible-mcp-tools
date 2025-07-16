@@ -1,4 +1,4 @@
-# MCP Server for AAP Controller API v2.5
+# MCP Server for AAP Controller API v2.4
 
 ## Configuration options:
 
