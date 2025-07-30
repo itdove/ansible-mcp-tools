@@ -1,24 +1,21 @@
 ---
-- name: Configure the projects, inventories, and job templates on the controller
+- name: Templates seeding
 
   hosts: localhost
   gather_facts: false
   connection: local
 
   vars:
-    admin_username: admin
-
     github_user: "{{ lookup('ansible.builtin.env', 'GITHUB_USER', default='') }}"
     github_ssh_key: "{{ lookup('ansible.builtin.env', 'GITHUB_SSH_KEY', default='') }}"
-    github_ssh_passphrase: "{{ lookup('ansible.builtin.env', 'GITHUB_SSH_PASSPHRASE', default='') }}"
+
+    scm_repo_organization: "{{ lookup('ansible.builtin.env', 'SCM_REPO_ORGANIZATION', default='ansible') }}"
     scm_repo_branch: "{{ lookup('ansible.builtin.env', 'SCM_REPO_BRANCH', default='main') }}"
 
     gateway_host: "{{ lookup('ansible.builtin.env', 'ANSIBLE_BASE_URL', default='') }}"
-    gateway_username: "{{ lookup('ansible.builtin.env', 'GATEWAY_USERNAME', default='') }}"
+    gateway_username: "{{ lookup('ansible.builtin.env', 'GATEWAY_USERNAME', default='admin') }}"
     gateway_password: "{{ lookup('ansible.builtin.env', 'GATEWAY_PASSWORD', default='') }}"
 
-  # environment:
-  #   CONTROLLER_OPTIONAL_API_URLPATTERN_PREFIX: "/api/controller/"
 
   module_defaults:
     ansible.controller.job_template:
@@ -26,11 +23,6 @@
       controller_username: "{{ gateway_username }}"
       controller_password: "{{ gateway_password }}"
       validate_certs: false
-    # group/awx.awx.controller:
-    #   controller_host: "{{ gateway_host }}"
-    #   controller_username: "{{ gateway_username }}"
-    #   controller_password: "{{ gateway_password }}"
-    #   validate_certs: false
     ansible.platform.organization:
       gateway_hostname: "{{ gateway_host }}"
       gateway_username: "{{ gateway_username }}"
@@ -44,10 +36,8 @@
         that:
           - github_user != ""
           - github_ssh_key != ""
-          - github_ssh_passphrase != ""
-          - lookup('ansible.builtin.env', 'ANSIBLE_BASE_URL', default='') != ''
-          - lookup('ansible.builtin.env', 'GATEWAY_USERNAME', default='') != ''
-          - lookup('ansible.builtin.env', 'GATEWAY_PASSWORD', default='') != ''
+          - gateway_host != ""
+          - gateway_password != ""
         fail_msg: The required environment tokens were not found.
         success_msg: Required authentication tokens are available.
 
@@ -96,7 +86,7 @@
             scm_update_on_launch: true
             scm_delete_on_update: true
             scm_update_cache_timeout: 600
-            scm_url: "git@github.com:ansible/ansible-mcp-tools.git"
+            scm_url: "git@github.com:{{ scm_repo_organization }}/ansible-mcp-tools.git"
             scm_type: git
             scm_branch: "{{ scm_repo_branch }}"
             update_project: true
